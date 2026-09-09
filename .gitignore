@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Testing & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Heavy raw datasets & base model downloads
+dataset/
+data/pcb_yolo/
+rtdetr-l.pt
+weights/
+
+# Intermediate runs & checkpoints (keep best.pt & evaluation artifacts)
+runs/detect/runs/
+runs/detect/pcb_rtdetr/weights/epoch*.pt
+runs/detect/pcb_rtdetr/weights/last.pt
+runs/detect/pcb_rtdetr/args.yaml
+runs/detect/pcb_rtdetr/train_batch*.jpg

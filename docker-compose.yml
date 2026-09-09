@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  pcb-inspection-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smart_pcb_inspection_api
+    ports:
+      - "8000:8000"
+    environment:
+      - PCB_MODEL_PATH=runs/detect/pcb_rtdetr/weights/best.pt
+      - PCB_CONF_THRESHOLD=0.35
+    volumes:
+      - ./runs:/app/runs
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

@@ -1,0 +1,132 @@
+{
+    "mAP50": 0.31798555379193844,
+    "mAP50_95": 0.20304269030496772,
+    "precision": 0.24514619521186068,
+    "recall": 0.6333144200509733,
+    "f1_score": 0.35346933263976565,
+    "class_metrics": {
+        "Cap1": {
+            "precision": 0.1155,
+            "recall": 1.0,
+            "f1_score": 0.207,
+            "mAP50": 0.383,
+            "mAP50_95": 0.2426
+        },
+        "Cap2": {
+            "precision": 0.4433,
+            "recall": 0.3058,
+            "f1_score": 0.3619,
+            "mAP50": 0.3117,
+            "mAP50_95": 0.1664
+        },
+        "Cap3": {
+            "precision": 0.3067,
+            "recall": 0.3776,
+            "f1_score": 0.3385,
+            "mAP50": 0.2786,
+            "mAP50_95": 0.2016
+        },
+        "Cap4": {
+            "precision": 0.2755,
+            "recall": 0.2736,
+            "f1_score": 0.2745,
+            "mAP50": 0.2255,
+            "mAP50_95": 0.1394
+        },
+        "MOSFET": {
+            "precision": 0.1162,
+            "recall": 0.9924,
+            "f1_score": 0.208,
+            "mAP50": 0.4057,
+            "mAP50_95": 0.2733
+        },
+        "MOV": {
+            "precision": 0.1852,
+            "recall": 0.771,
+            "f1_score": 0.2986,
+            "mAP50": 0.3047,
+            "mAP50_95": 0.2047
+        },
+        "Resistor": {
+            "precision": 0.1717,
+            "recall": 0.9083,
+            "f1_score": 0.2888,
+            "mAP50": 0.3106,
+            "mAP50_95": 0.1811
+        },
+        "Transformer": {
+            "precision": 0.3472,
+            "recall": 0.4378,
+            "f1_score": 0.3873,
+            "mAP50": 0.3241,
+            "mAP50_95": 0.2152
+        }
+    },
+    "top_5_failure_cases": [
+        {
+            "case_id": 1,
+            "image": "VID202106071439301-132_jpg.rf.2b6a4ed0c96f07460a1b6bb42546c365.jpg",
+            "diagnostic_image": "runs\\evaluation\\failure_cases\\failure_case_1_VID202106071439301-132_jpg.rf.2b6a4ed0c96f07460a1b6bb42546c365.jpg",
+            "gt_count": 9,
+            "pred_count": 117,
+            "primary_error_type": "CLASS_CONFUSION",
+            "error_details": [
+                "Predicted 'Cap3' (conf: 0.38) but Ground Truth is 'Cap4' (IoU: 0.90)",
+                "Predicted 'Cap3' (conf: 0.38) but Ground Truth is 'Cap4' (IoU: 0.89)",
+                "Predicted 'Cap3' (conf: 0.37) but Ground Truth is 'Cap4' (IoU: 0.92)"
+            ]
+        },
+        {
+            "case_id": 2,
+            "image": "VID202106071435211-234_jpg.rf.44a933dbc0801afbfbbbcf25c1105c6a.jpg",
+            "diagnostic_image": "runs\\evaluation\\failure_cases\\failure_case_2_VID202106071435211-234_jpg.rf.44a933dbc0801afbfbbbcf25c1105c6a.jpg",
+            "gt_count": 7,
+            "pred_count": 68,
+            "primary_error_type": "FALSE_POSITIVE",
+            "error_details": [
+                "Spurious 'Cap3' detection (conf: 0.38) with no matching GT object",
+                "Spurious 'Cap3' detection (conf: 0.38) with no matching GT object",
+                "Spurious 'Cap3' detection (conf: 0.38) with no matching GT object"
+            ]
+        },
+        {
+            "case_id": 3,
+            "image": "VID202106071439301-132_jpg.rf.eb5b3f827cd9074ff887e055ffb2e5f8.jpg",
+            "diagnostic_image": "runs\\evaluation\\failure_cases\\failure_case_3_VID202106071439301-132_jpg.rf.eb5b3f827cd9074ff887e055ffb2e5f8.jpg",
+            "gt_count": 9,
+            "pred_count": 66,
+            "primary_error_type": "CLASS_CONFUSION",
+            "error_details": [
+                "Predicted 'Cap4' (conf: 0.26) but Ground Truth is 'Cap3' (IoU: 0.84)",
+                "Predicted 'Cap4' (conf: 0.26) but Ground Truth is 'Cap3' (IoU: 0.85)",
+                "Predicted 'Cap4' (conf: 0.25) but Ground Truth is 'Cap3' (IoU: 0.78)"
+            ]
+        },
+        {
+            "case_id": 4,
+            "image": "VID202106071439301-114_jpg.rf.3314e00a66691675957b93ac0dcfac31.jpg",
+            "diagnostic_image": "runs\\evaluation\\failure_cases\\failure_case_4_VID202106071439301-114_jpg.rf.3314e00a66691675957b93ac0dcfac31.jpg",
+            "gt_count": 7,
+            "pred_count": 95,
+            "primary_error_type": "FALSE_POSITIVE",
+            "error_details": [
+                "Spurious 'Cap3' detection (conf: 0.34) with no matching GT object",
+                "Spurious 'Cap3' detection (conf: 0.34) with no matching GT object",
+                "Spurious 'Cap4' detection (conf: 0.27) with no matching GT object"
+            ]
+        },
+        {
+            "case_id": 5,
+            "image": "VID20210601144220-165_jpg.rf.019f3a86cbe858b560a788618d0d1bee.jpg",
+            "diagnostic_image": "runs\\evaluation\\failure_cases\\failure_case_5_VID20210601144220-165_jpg.rf.019f3a86cbe858b560a788618d0d1bee.jpg",
+            "gt_count": 9,
+            "pred_count": 72,
+            "primary_error_type": "FALSE_NEGATIVE_MISS",
+            "error_details": [
+                "Missed ground truth object 'Resistor'",
+                "Missed ground truth object 'Transformer'",
+                "Missed ground truth object 'Cap3'"
+            ]
+        }
+    ]
+}

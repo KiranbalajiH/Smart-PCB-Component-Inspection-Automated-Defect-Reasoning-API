@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart PCB Inspection & Automated Reasoning Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="navbar">
+            <div class="brand">
+                <div class="brand-icon">⚡</div>
+                <div class="brand-text">
+                    <h1>Smart PCB Inspection & Reasoning API</h1>
+                    <p class="subtitle">Fine-tuned RT-DETR Detection & Hand-Written Geometric Reasoning Engine</p>
+                </div>
+            </div>
+            <div class="header-badges">
+                <span class="badge badge-model">RT-DETR-Large</span>
+                <span class="badge badge-status" id="systemStatus">Checking API...</span>
+                <a href="/docs" target="_blank" class="badge badge-link">Swagger Docs ↗</a>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="workspace-grid">
+            <!-- Left Panel: Input & Image Canvas -->
+            <section class="panel panel-left">
+                <div class="panel-header">
+                    <h2>1. Image Input & Visual Canvas</h2>
+                    <span class="panel-tag">Source Image</span>
+                </div>
+                
+                <div class="upload-zone" id="dropZone">
+                    <input type="file" id="fileInput" accept="image/jpeg,image/png" hidden>
+                    <div class="upload-prompt" id="uploadPrompt">
+                        <div class="upload-icon">📷</div>
+                        <p class="upload-title">Drop PCB inspection image here or <span>Browse</span></p>
+                        <p class="upload-hint">Supported formats: JPG, JPEG, PNG (High resolution recommended)</p>
+                    </div>
+                    <div class="canvas-wrapper" id="canvasWrapper" style="display: none;">
+                        <canvas id="inspectionCanvas"></canvas>
+                    </div>
+                </div>
+
+                <div class="controls-row">
+                    <div class="control-group">
+                        <label for="confRange">Confidence Threshold: <span id="confValue">0.35</span></label>
+                        <input type="range" id="confRange" min="0.10" max="0.95" step="0.05" value="0.35">
+                    </div>
+                    <button class="btn btn-primary" id="btnRunDetect">🔍 Run Object Detection</button>
+                </div>
+
+                <!-- Sample Images Selector -->
+                <div class="sample-pills">
+                    <span class="pill-label">Try sample queries:</span>
+                    <button class="sample-btn" data-q="How many capacitors exist?">Capacitor Count</button>
+                    <button class="sample-btn" data-q="Which component is closest to the transformer?">Nearest Neighbor</button>
+                    <button class="sample-btn" data-q="Are any components missing?">Missing Check</button>
+                    <button class="sample-btn" data-q="Is the board fully assembled?">Assembly Check</button>
+                </div>
+            </section>
+
+            <!-- Right Panel: Part B Reasoning & Detection Telemetry -->
+            <section class="panel panel-right">
+                <!-- Part B Reasoning Section -->
+                <div class="reasoning-box">
+                    <div class="panel-header">
+                        <h2>2. Part B: Natural Language Reasoning Layer</h2>
+                        <span class="panel-tag tag-reasoning">Framework-Free Rule Engine</span>
+                    </div>
+
+                    <div class="query-input-bar">
+                        <input type="text" id="questionInput" placeholder="Ask a question about the PCB (e.g., 'Which component is closest to the transformer?')" value="How many capacitors exist?">
+                        <button class="btn btn-accent" id="btnAskReason">💬 Ask Question</button>
+                    </div>
+
+                    <!-- Reasoning Output Card -->
+                    <div class="result-card" id="reasoningCard">
+                        <div class="result-header">
+                            <span class="intent-pill" id="intentBadge">Awaiting Query</span>
+                            <span class="time-pill" id="reasonTime">- ms</span>
+                        </div>
+                        <div class="reason-answer" id="reasonAnswer">
+                            Select an image and enter a natural-language query to test intent routing, spatial nearest-neighbor math, missing component verification, and confidence guardrails.
+                        </div>
+                        <div class="guardrail-alert" id="guardrailAlert" style="display: none;">
+                            ⚠️ <strong>Confidence Guardrail Triggered:</strong> <span id="guardrailReason"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Part A Detection Telemetry Section -->
+                <div class="telemetry-box">
+                    <div class="panel-header">
+                        <h2>3. Part A: Detection Telemetry & Class Breakdown</h2>
+                        <span class="panel-tag" id="detCountBadge">0 Detections</span>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-label">Inference Time</span>
+                            <span class="stat-value" id="statInfTime">-</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Mean Confidence</span>
+                            <span class="stat-value" id="statMeanConf">-</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Capacitors (Cap1-4)</span>
+                            <span class="stat-value" id="statCaps">-</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Key ICs / Coils</span>
+                            <span class="stat-value" id="statPower">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Detections Table -->
+                    <div class="table-container">
+                        <table class="det-table" id="detTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Class</th>
+                                    <th>Confidence</th>
+                                    <th>Centroid (X, Y)</th>
+                                    <th>Dimensions (W×H)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detTableBody">
+                                <tr>
+                                    <td colspan="5" class="empty-table">No detection run yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# PCB Component Detection Dataset for RT-DETR
+path: C:/Users/devas/projects/kiran/data/pcb_yolo
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: Cap1
+  1: Cap2
+  2: Cap3
+  3: Cap4
+  4: MOSFET
+  5: MOV
+  6: Resistor
+  7: Transformer
