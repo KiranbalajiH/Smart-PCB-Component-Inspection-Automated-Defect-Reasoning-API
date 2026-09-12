@@ -15,7 +15,7 @@ import cv2
 import numpy as np
 
 from src.detector import PCBDetector
-from src.reasoning import IntentRouter, PCBReasoningEngine
+from src.reasoning import IntentRouter, PCBReasoningEngine, LocalLLMReasoningEngine
 
 # Setup structured logging
 logging.basicConfig(
@@ -26,7 +26,7 @@ logger = logging.getLogger("PCB-API")
 
 app = FastAPI(
     title="Smart PCB Component Inspection & Reasoning API",
-    description="Production RT-DETR Detection & Hand-Written Reasoning Layer for PCB Defect & Assembly Inspection",
+    description="Production RT-DETR Detection & Real Local LLM Reasoning Layer for PCB Defect & Assembly Inspection",
     version="1.0.0"
 )
 
@@ -45,6 +45,7 @@ CONFIDENCE_THRESHOLD = float(os.environ.get("PCB_CONF_THRESHOLD", "0.35"))
 
 detector = PCBDetector(model_path=MODEL_WEIGHTS, conf_threshold=CONFIDENCE_THRESHOLD)
 reasoning_engine = PCBReasoningEngine(min_confidence_guardrail=0.30)
+local_llm_engine = LocalLLMReasoningEngine(model_id="Qwen/Qwen2.5-0.5B-Instruct", min_confidence_guardrail=0.30)
 
 
 # Models for API schemas
@@ -176,8 +177,8 @@ async def reason_about_pcb(
         # 2. Run RT-DETR Detection
         det_result = detector.detect(image_bytes)
         
-        # 3. Run Hand-Written Structured Reasoning & Confidence Guardrail
-        reasoning_res = reasoning_engine.reason_over_detections(question, det_result)
+        # 3. Run Real Local LLM Reasoning with Confidence Guardrails & Geometric Grounding
+        reasoning_res = local_llm_engine.reason(question, det_result)
         
         elapsed_ms = round((time.time() - start_t) * 1000.0, 2)
         

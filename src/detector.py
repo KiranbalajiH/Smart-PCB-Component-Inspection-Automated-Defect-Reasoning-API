@@ -100,10 +100,8 @@ class PCBDetector:
             verbose=False
         )[0]
         
-        detections = []
-        class_counts = {cls_name: 0 for cls_name in CANONICAL_CLASSES}
-        confidences = []
-        
+        # Collect raw detections
+        raw_detections = []
         for box in results.boxes:
             cls_id = int(box.cls[0].item())
             cls_name = self.model.names.get(cls_id, ID_TO_CLASS.get(cls_id, f"Class_{cls_id}"))
@@ -116,8 +114,7 @@ class PCBDetector:
             bw = x2 - x1
             bh = y2 - y1
             
-            det_item = {
-                "id": len(detections) + 1,
+            raw_detections.append({
                 "class_id": cls_id,
                 "class_name": cls_name,
                 "confidence": round(conf_val, 4),
@@ -132,10 +129,52 @@ class PCBDetector:
                 "centroid_normalized": [round(cx / w_orig, 4), round(cy / h_orig, 4)],
                 "dimensions": [round(bw, 2), round(bh, 2)],
                 "area_pixels": round(bw * bh, 2)
-            }
-            detections.append(det_item)
-            class_counts[cls_name] = class_counts.get(cls_name, 0) + 1
-            confidences.append(conf_val)
+            })
+            
+        # Non-Maximum Suppression (NMS) Deduplication
+        # Suppress duplicate object queries matching the same physical component
+        raw_detections.sort(key=lambda d: d["confidence"], reverse=True)
+        deduped_detections = []
+        
+        for det in raw_detections:
+            box_a = det["box_xyxy"]
+            c_a = det["centroid"]
+            is_dup = False
+            
+            for kept in deduped_detections:
+                box_b = kept["box_xyxy"]
+                c_b = kept["centroid"]
+                
+                # Compute IoU
+                x1 = max(box_a[0], box_b[0])
+                y1 = max(box_a[1], box_b[1])
+                x2 = min(box_a[2], box_b[2])
+                y2 = min(box_a[3], box_b[3])
+                inter = max(0.0, x2 - x1) * max(0.0, y2 - y1)
+                union = det["area_pixels"] + kept["area_pixels"] - inter
+                iou = inter / union if union > 0 else 0.0
+                
+                # Centroid Euclidean distance
+                c_dist = ((c_a[0] - c_b[0])**2 + (c_a[1] - c_b[1])**2)**0.5
+                
+                # If high IoU or very close centroids, suppress the lower confidence duplicate
+                if iou > 0.40 or (c_dist < 40.0 and (det["class_id"] == kept["class_id"] or iou > 0.25)):
+                    is_dup = True
+                    break
+                    
+            if not is_dup:
+                deduped_detections.append(det)
+                
+        # Re-assign sequential IDs and compute class counts
+        detections = []
+        class_counts = {cls_name: 0 for cls_name in CANONICAL_CLASSES}
+        confidences = []
+        
+        for idx, det in enumerate(deduped_detections):
+            det["id"] = idx + 1
+            detections.append(det)
+            class_counts[det["class_name"]] = class_counts.get(det["class_name"], 0) + 1
+            confidences.append(det["confidence"])
             
         # Overall quality and summary metrics
         mean_conf = float(np.mean(confidences)) if confidences else 0.0

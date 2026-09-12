@@ -52,12 +52,16 @@ An end-to-end production Computer Vision system for Automated Optical Inspection
    - `Transformer` (Ferrite high-frequency power coils)
    - `Resistor` (Surface mount & through-hole resistors, normalized from raw typos)
 
-2. **Hand-Written Reasoning Layer (Part B)**:
-   - **Strictly zero agentic frameworks**: No LangChain, LangGraph, CrewAI, AutoGen, or similar libraries.
+2. **Real Local LLM NLP Reasoning Layer (Part B)**:
+   - **Local Instruct LLM**: Uses `Qwen/Qwen2.5-0.5B-Instruct` running locally on GPU via PyTorch / `transformers` (in `float16`) to generate natural language answers grounded strictly on RT-DETR perception telemetry.
+   - **Strictly zero agentic frameworks**: No LangChain, LangGraph, CrewAI, AutoGen, or external cloud LLM APIs.
    - **Intent Routing**: Directs non-visual queries (*"What is the weather today?"*) away from GPU detection pipelines.
    - **Spatial Reasoning**: Computes Euclidean distances, centroid alignments, and nearest neighbors (*"Which component is closest to the transformer?"*).
    - **Bill of Materials (BOM) & Assembly Completeness**: Verifies board population against standard baseline assembly recipes (*"Is the board fully assembled?"*).
    - **Deterministic Confidence Guardrails**: Returns explicit `"Insufficient information"` responses when confidence drops below $0.30$ or when critical visual anchors are absent.
+
+3. **DETR Object Query Deduplication (NMS)**:
+   - Eliminates redundant overlapping object queries on the same physical component using spatial IoU ($>0.40$) and centroid proximity suppression ($<40$px).
 
 3. **Reproducibility & Deliverables**:
    - Parameterized training script (`src/train.py`) and evaluation script (`src/evaluate.py`).

@@ -1,6 +1,11 @@
+import os
 import math
 import re
+import time
+import logging
 from typing import Dict, List, Any, Optional, Tuple
+
+logger = logging.getLogger("PCB-Reasoning")
 
 # Standard baseline assembly recipe for our PCB board architecture:
 # A fully assembled board typically contains:
@@ -34,7 +39,7 @@ class IntentRouter:
     Routes queries to:
     - VISUAL_INSPECTION (Requires RT-DETR visual detection)
     - GENERAL_KNOWLEDGE (Non-image / out-of-domain conversational query)
-    - DOMAIN_INFO (General PCB domain query answerable without image inference)
+    - GREETING_HELP (Greetings or capability explanation)
     - INVALID_QUERY (Empty or unparseable input)
     """
     
@@ -45,8 +50,6 @@ class IntentRouter:
         "capacitor", "resistor", "mosfet", "mov", "transformer", "component", "board",
         "usb", "connector", "part", "defect", "inspection", "damage"
     ]
-    
-    GREETINGS = ["hello", "hi", "hey", "who are you", "what can you do", "help"]
     
     @classmethod
     def route(cls, question: str) -> Dict[str, Any]:
@@ -90,8 +93,8 @@ class IntentRouter:
 
 class PCBReasoningEngine:
     """
-    Hand-written structured reasoning layer for PCB defect and spatial analysis.
-    Operates over RT-DETR structured bounding boxes, centroids, and classes.
+    Hand-written structured mathematical reasoning layer for PCB spatial analysis.
+    Calculates exact Euclidean distances, centroid geometry, and BOM checks.
     """
     
     def __init__(self, min_confidence_guardrail: float = 0.30):
@@ -162,11 +165,9 @@ class PCBReasoningEngine:
         class_counts: Dict[str, int]
     ) -> Dict[str, Any]:
         """Calculates specific or general component counts."""
-        # Check specific class query
         for canonical, aliases in COMPONENT_ALIASES.items():
             if any(re.search(r'\b' + re.escape(alias) + r'\b', q_lower) for alias in aliases):
                 if canonical == "capacitor":
-                    # Sum all capacitor subtypes (Cap1, Cap2, Cap3, Cap4)
                     cap_counts = {
                         "Cap1": class_counts.get("Cap1", 0),
                         "Cap2": class_counts.get("Cap2", 0),
@@ -199,7 +200,6 @@ class PCBReasoningEngine:
                         "guardrail_triggered": False
                     }
                     
-        # Total overall component count
         total = len(detections)
         summary = ", ".join([f"{k}: {v}" for k, v in class_counts.items() if v > 0])
         return {
@@ -215,7 +215,6 @@ class PCBReasoningEngine:
         detections: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Finds the nearest neighboring component using Euclidean centroid distance."""
-        # Check target entity explicitly specified after proximity verbs (closest to X / nearest to X)
         target_alias = None
         prox_match = re.search(r'(?:closest|nearest|next)\s+to\s+(?:the\s+)?([a-zA-Z0-9_\-]+)', q_lower)
         if prox_match:
@@ -239,7 +238,6 @@ class PCBReasoningEngine:
                 "guardrail_reason": "No valid reference component parsed from proximity query."
             }
             
-        # Match target detection(s) in image
         target_name = target_alias.capitalize() if target_alias != "mov" else "MOV"
         target_dets = []
         for d in detections:
@@ -255,11 +253,9 @@ class PCBReasoningEngine:
                 "guardrail_reason": f"Target reference component '{target_name}' not present in detection set."
             }
             
-        # Select reference object (highest confidence one if multiple)
         ref_obj = max(target_dets, key=lambda x: x["confidence"])
         rx, ry = ref_obj["centroid"]
         
-        # Calculate Euclidean distances to all other distinct objects
         candidates = []
         for d in detections:
             if d["id"] == ref_obj["id"]:
@@ -279,7 +275,6 @@ class PCBReasoningEngine:
         candidates.sort(key=lambda x: x[0])
         closest_dist, closest_obj = candidates[0]
         
-        # Calculate relative direction
         dx = closest_obj["centroid"][0] - rx
         dy = closest_obj["centroid"][1] - ry
         h_dir = "to the right" if dx > 0 else "to the left"
@@ -307,7 +302,6 @@ class PCBReasoningEngine:
         total_caps = sum(class_counts.get(f"Cap{i}", 0) for i in range(1, 5))
         
         if total_caps < REFERENCE_PCB_RECIPE["Capacitor"]["min"]:
-            deficit = REFERENCE_PCB_RECIPE["Capacitor"]["min"] - total_caps
             missing.append(f"Capacitor Cluster (detected {total_caps}, expected minimum {REFERENCE_PCB_RECIPE['Capacitor']['min']})")
             
         if class_counts.get("Transformer", 0) < REFERENCE_PCB_RECIPE["Transformer"]["min"]:
@@ -426,3 +420,171 @@ class PCBReasoningEngine:
             "data": {"total_count": total, "class_counts": class_counts},
             "guardrail_triggered": False
         }
+
+
+class LocalLLMReasoningEngine:
+    """
+    Direct, framework-free Local LLM Reasoning Engine using HuggingFace Transformers & PyTorch.
+    Runs entirely on local GPU (CUDA) or CPU without LangChain, CrewAI, AutoGen, or external APIs.
+    """
+    
+    def __init__(
+        self,
+        model_id: str = "Qwen/Qwen2.5-0.5B-Instruct",
+        min_confidence_guardrail: float = 0.30
+    ):
+        self.model_id = model_id
+        self.min_confidence_guardrail = min_confidence_guardrail
+        self.tokenizer = None
+        self.model = None
+        self.device = None
+        self.is_loaded = False
+        self._fallback_engine = PCBReasoningEngine(min_confidence_guardrail=min_confidence_guardrail)
+        
+    def load_model(self):
+        """Loads tokenizer and model weights directly into GPU memory."""
+        if self.is_loaded:
+            return
+            
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        
+        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        logger.info(f"Loading local NLP LLM '{self.model_id}' on {self.device}...")
+        
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
+            self.model = AutoModelForCausalLM.from_pretrained(
+                self.model_id,
+                dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
+                device_map=self.device
+            )
+            self.is_loaded = True
+            logger.info(f"Local NLP LLM loaded successfully on {self.device}.")
+        except Exception as e:
+            logger.error(f"Failed to load local LLM: {str(e)}. Fallback engine will be used.", exc_info=True)
+            self.is_loaded = False
+            
+    def reason(
+        self,
+        question: str,
+        detection_result: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Executes local LLM reasoning grounded in RT-DETR detections with confidence guardrails.
+        """
+        start_t = time.time()
+        
+        # 1. First enforce strict deterministic Guardrails
+        mean_conf = detection_result.get("quality_metrics", {}).get("mean_confidence", 0.0)
+        total_dets = detection_result.get("total_detections", 0)
+        
+        if total_dets == 0:
+            return {
+                "status": "INSUFFICIENT_INFORMATION",
+                "answer": "Insufficient information: No PCB components were detected with sufficient confidence. The image may be severely blurred, out of focus, or does not contain a recognizable PCB.",
+                "confidence": 0.0,
+                "guardrail_triggered": True,
+                "guardrail_reason": "Zero detections returned by RT-DETR.",
+                "engine": "guardrail"
+            }
+            
+        if mean_conf < self.min_confidence_guardrail:
+            return {
+                "status": "INSUFFICIENT_INFORMATION",
+                "answer": f"Insufficient information: Average model detection confidence ({mean_conf:.2f}) is below the minimum reliability threshold ({self.min_confidence_guardrail:.2f}). Component validation cannot be guaranteed.",
+                "confidence": mean_conf,
+                "guardrail_triggered": True,
+                "guardrail_reason": f"Mean detection confidence {mean_conf:.2f} < threshold {self.min_confidence_guardrail:.2f}.",
+                "engine": "guardrail"
+            }
+
+        # 2. Extract deterministic geometric facts as grounding context
+        geo_result = self._fallback_engine.reason_over_detections(question, detection_result)
+        if geo_result.get("guardrail_triggered"):
+            return {**geo_result, "engine": "guardrail"}
+            
+        # Try LLM generation if available
+        if not self.is_loaded:
+            try:
+                self.load_model()
+            except Exception:
+                pass
+                
+        if not self.is_loaded or self.model is None:
+            # Return deterministic reasoning response
+            return {**geo_result, "engine": "deterministic-spatial-fallback"}
+
+        # 3. Build Prompt Grounding for Local LLM
+        import torch
+        detections = detection_result.get("detections", [])
+        class_counts = detection_result.get("class_counts", {})
+        active_counts = {k: v for k, v in class_counts.items() if v > 0}
+        
+        components_summary = []
+        for d in detections:
+            components_summary.append(
+                f"- #{d['id']}: {d['class_name']} at centroid ({d['centroid'][0]:.0f}, {d['centroid'][1]:.0f}), confidence {d['confidence']*100:.1f}%"
+            )
+        components_str = "\n".join(components_summary)
+        
+        system_prompt = (
+            "You are an expert Smart PCB Inspection Quality Assurance Engineer.\n"
+            "You are given real-time perception data from an RT-DETR object detector on an inspected PCB.\n"
+            "Answer the user's question accurately, concisely, and factually based ONLY on the detection data provided below.\n"
+            "Rules:\n"
+            "- If asked how many components or capacitors exist, state the exact count from the data.\n"
+            "- If asked about missing components or assembly, note what is present and what is missing.\n"
+            "- If asked about closest components, use the spatial coordinates.\n"
+            "- Never hallucinate components not listed in the detection data.\n"
+            "- Keep your response direct, professional, and within 1-3 sentences."
+        )
+        
+        user_prompt = (
+            f"PCB Detection Telemetry:\n"
+            f"- Total Detected Components: {total_dets}\n"
+            f"- Component Counts: {active_counts}\n"
+            f"- Detected Objects:\n{components_str}\n\n"
+            f"Calculated Spatial Fact: {geo_result.get('answer', '')}\n\n"
+            f"Question: {question}\n\n"
+            f"Provide a concise, direct inspection answer:"
+        )
+        
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        try:
+            formatted_input = self.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True
+            )
+            inputs = self.tokenizer([formatted_input], return_tensors="pt").to(self.device)
+            
+            with torch.no_grad():
+                outputs = self.model.generate(
+                    **inputs,
+                    max_new_tokens=90,
+                    do_sample=False,
+                    repetition_penalty=1.1
+                )
+                
+            input_len = inputs.input_ids.shape[1]
+            generated_tokens = outputs[0][input_len:]
+            llm_text = self.tokenizer.decode(generated_tokens, skip_special_tokens=True).strip()
+            
+            if not llm_text:
+                llm_text = geo_result.get("answer", "")
+                
+            return {
+                "status": "SUCCESS",
+                "answer": llm_text,
+                "data": geo_result.get("data", {}),
+                "guardrail_triggered": False,
+                "engine": f"local-llm ({self.model_id})"
+            }
+        except Exception as e:
+            logger.warning(f"Local LLM generation failed: {str(e)}. Using deterministic answer.", exc_info=True)
+            return {**geo_result, "engine": "deterministic-spatial-fallback"}
