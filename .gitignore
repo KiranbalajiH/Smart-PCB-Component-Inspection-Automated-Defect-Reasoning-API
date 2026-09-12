@@ -31,3 +31,4 @@ runs/detect/pcb_rtdetr/weights/epoch*.pt
 runs/detect/pcb_rtdetr/weights/last.pt
 runs/detect/pcb_rtdetr/args.yaml
 runs/detect/pcb_rtdetr/train_batch*.jpg
+!runs/detect/pcb_rtdetr/weights/best.pt
