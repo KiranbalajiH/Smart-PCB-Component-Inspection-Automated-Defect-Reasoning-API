@@ -327,8 +327,8 @@ Evaluation on the **131 holdout test images** using the fine-tuned RT-DETR-Large
 
 ### 1. Clone and Create Virtual Environment
 ```bash
-git clone https://github.com/DEVASANJAY001/Constrained-Object-Detection-Reasoning-API.git
-cd Constrained-Object-Detection-Reasoning-API
+git clone https://github.com/KiranbalajiH/Smart-PCB-Component-Inspection-Automated-Defect-Reasoning-API.git
+cd Smart-PCB-Component-Inspection-Automated-Defect-Reasoning-API
 
 # Create and activate virtual environment
 python -m venv venv
@@ -405,7 +405,7 @@ tests/test_reasoning.py::test_reasoning_assembly_completeness PASSED
 ## 📁 Project Directory Layout
 
 ```
-Constrained-Object-Detection-Reasoning-API/
+Smart-PCB-Component-Inspection-Automated-Defect-Reasoning-API/
 ├── dataset/                  # Raw Supervisely PCB dataset (train, test, validation)
 ├── data/
 │   ├── pcb_yolo/             # YOLO format partitioned dataset (images/, labels/)
