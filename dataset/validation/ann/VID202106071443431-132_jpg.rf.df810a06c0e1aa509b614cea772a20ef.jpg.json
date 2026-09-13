@@ -1,0 +1,226 @@
+{
+    "description": "",
+    "tags": [],
+    "size": {
+        "height": 1420,
+        "width": 1074
+    },
+    "objects": [
+        {
+            "id": 5766132,
+            "classId": 8345,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T09:01:01.552Z",
+            "updatedAt": "2023-06-13T09:01:01.552Z",
+            "tags": [],
+            "classTitle": "Transformer",
+            "points": {
+                "exterior": [
+                    [
+                        302,
+                        258
+                    ],
+                    [
+                        468,
+                        497
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 5766131,
+            "classId": 8339,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T09:01:01.551Z",
+            "updatedAt": "2023-06-13T09:01:01.551Z",
+            "tags": [],
+            "classTitle": "Cap3",
+            "points": {
+                "exterior": [
+                    [
+                        467,
+                        262
+                    ],
+                    [
+                        612,
+                        446
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 5766130,
+            "classId": 8340,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T09:01:01.551Z",
+            "updatedAt": "2023-06-13T09:01:01.551Z",
+            "tags": [],
+            "classTitle": "Cap4",
+            "points": {
+                "exterior": [
+                    [
+                        622,
+                        242
+                    ],
+                    [
+                        773,
+                        434
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 5766129,
+            "classId": 8338,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T09:01:01.551Z",
+            "updatedAt": "2023-06-13T09:01:01.551Z",
+            "tags": [],
+            "classTitle": "Cap2",
+            "points": {
+                "exterior": [
+                    [
+                        477,
+                        1045
+                    ],
+                    [
+                        572,
+                        1143
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 5766128,
+            "classId": 8337,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T09:01:01.551Z",
+            "updatedAt": "2023-06-13T09:01:01.551Z",
+            "tags": [],
+            "classTitle": "Cap1",
+            "points": {
+                "exterior": [
+                    [
+                        397,
+                        883
+                    ],
+                    [
+                        538,
+                        1040
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 5766127,
+            "classId": 8345,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T09:01:01.550Z",
+            "updatedAt": "2023-06-13T09:01:01.550Z",
+            "tags": [],
+            "classTitle": "Transformer",
+            "points": {
+                "exterior": [
+                    [
+                        423,
+                        678
+                    ],
+                    [
+                        678,
+                        884
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 5766126,
+            "classId": 8342,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T09:01:01.550Z",
+            "updatedAt": "2023-06-13T09:01:01.550Z",
+            "tags": [],
+            "classTitle": "Mov",
+            "points": {
+                "exterior": [
+                    [
+                        196,
+                        502
+                    ],
+                    [
+                        395,
+                        620
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 5766125,
+            "classId": 8341,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T09:01:01.550Z",
+            "updatedAt": "2023-06-13T09:01:01.550Z",
+            "tags": [],
+            "classTitle": "MOSFET",
+            "points": {
+                "exterior": [
+                    [
+                        523,
+                        488
+                    ],
+                    [
+                        642,
+                        597
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 5766124,
+            "classId": 8344,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T09:01:01.550Z",
+            "updatedAt": "2023-06-13T09:01:01.550Z",
+            "tags": [],
+            "classTitle": "Resistor",
+            "points": {
+                "exterior": [
+                    [
+                        146,
+                        400
+                    ],
+                    [
+                        232,
+                        490
+                    ]
+                ],
+                "interior": []
+            }
+        }
+    ]
+}

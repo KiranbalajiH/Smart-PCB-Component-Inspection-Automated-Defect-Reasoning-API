@@ -19,9 +19,8 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# Heavy raw datasets & base model downloads
-dataset/
-data/pcb_yolo/
+# Heavy raw datasets & base model downloads (dataset/ and data/pcb_yolo/ included for repo tracking)
+*.zip
 rtdetr-l.pt
 weights/
 

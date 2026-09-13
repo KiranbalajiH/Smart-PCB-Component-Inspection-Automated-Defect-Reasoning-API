@@ -1,0 +1,82 @@
+{
+    "description": "",
+    "tags": [],
+    "size": {
+        "height": 1168,
+        "width": 898
+    },
+    "objects": [
+        {
+            "id": 5760147,
+            "classId": 8338,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T08:57:49.733Z",
+            "updatedAt": "2023-06-13T08:57:49.733Z",
+            "tags": [],
+            "classTitle": "Cap2",
+            "points": {
+                "exterior": [
+                    [
+                        381,
+                        859
+                    ],
+                    [
+                        542,
+                        1024
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 5760146,
+            "classId": 8337,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T08:57:49.733Z",
+            "updatedAt": "2023-06-13T08:57:49.733Z",
+            "tags": [],
+            "classTitle": "Cap1",
+            "points": {
+                "exterior": [
+                    [
+                        247,
+                        699
+                    ],
+                    [
+                        496,
+                        935
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 5760145,
+            "classId": 8345,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "iw@datasetninja.com",
+            "createdAt": "2023-06-13T08:57:49.733Z",
+            "updatedAt": "2023-06-13T08:57:49.733Z",
+            "tags": [],
+            "classTitle": "Transformer",
+            "points": {
+                "exterior": [
+                    [
+                        212,
+                        456
+                    ],
+                    [
+                        550,
+                        796
+                    ]
+                ],
+                "interior": []
+            }
+        }
+    ]
+}
