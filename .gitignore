@@ -19,15 +19,10 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# Heavy raw datasets & base model downloads (dataset/ and data/pcb_yolo/ included for repo tracking)
+# Large archive files (>100MB cannot be pushed to GitHub)
 *.zip
-rtdetr-l.pt
-weights/
 
-# Intermediate runs & checkpoints (keep best.pt & evaluation artifacts)
-runs/detect/runs/
-runs/detect/pcb_rtdetr/weights/epoch*.pt
-runs/detect/pcb_rtdetr/weights/last.pt
-runs/detect/pcb_rtdetr/args.yaml
-runs/detect/pcb_rtdetr/train_batch*.jpg
-!runs/detect/pcb_rtdetr/weights/best.pt
+# Intermediate epoch checkpoints (>100MB each)
+**/epoch*.pt
+**/last.pt
+
